@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Offline Markdown Editor</title>
+<link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+<div class="container">
+  <textarea id="markdownInput" placeholder="Type your Markdown here..."></textarea>
+  <div class="btn" id="downloadMarkdownButton">Download Markdown</div>
+  <div class="btn" id="downloadWordButton">Download Word Document</div>
+  <div class="btn" id="clearButton">Clear Editor</div>
+  <div class="btn" id="copyButton">Copy Markdown</div>
+  <div id="wordCount">Word count: <span id="count">0</span></div>
+  <div class="markdown-preview" id="markdownPreview"></div>
+</div>
+<script src="script.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <script src="https://unpkg.com/html-docx-js/dist/html-docx.js"></script>
+  
+</body>
+</html>
