@@ -4,9 +4,60 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Offline Markdown Editor</title>
-<link rel="stylesheet" href="style.css">
 </head>
-
+<style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+    }
+  
+    .container {
+      max-width: 800px;
+      margin: 50px auto;
+      padding: 20px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      background-color: #f9f9f9;
+    }
+  
+    textarea {
+      width: 100%;
+      height: 300px;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      resize: none;
+      margin-bottom: 10px;
+    }
+  
+    .markdown-preview {
+      margin-top: 20px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      padding: 10px;
+      background-color: #fff;
+    }
+  
+    .btn {
+      padding: 10px 20px;
+      background-color: #007bff;
+      color: #fff;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      margin-right: 10px;
+    }
+  
+    .btn:hover {
+      background-color: #0056b3;
+    }
+  
+    #wordCount {
+      margin-top: 10px;
+      font-size: 14px;
+    }
+  </style>
 <body>
 <div class="container">
   <textarea id="markdownInput" placeholder="Type your Markdown here..."></textarea>
@@ -17,9 +68,106 @@
   <div id="wordCount">Word count: <span id="count">0</span></div>
   <div class="markdown-preview" id="markdownPreview"></div>
 </div>
-<script src="script.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+
+<script src="marked.min.js"></script>
+<script src="html-docx.js"></script> <!-- Include html-docx.js locally -->
+      <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
   <script src="https://unpkg.com/html-docx-js/dist/html-docx.js"></script>
+
+<script>
+    const markdownInput = document.getElementById('markdownInput');
+    const markdownPreview = document.getElementById('markdownPreview');
+    const downloadMarkdownButton = document.getElementById('downloadMarkdownButton');
+    const downloadWordButton = document.getElementById('downloadWordButton');
+    const clearButton = document.getElementById('clearButton');
+    const copyButton = document.getElementById('copyButton');
+    const wordCount = document.getElementById('count');
+  
+    // Function to update preview
+    function updatePreview() {
+      const markdownContent = markdownInput.value;
+      const convertedHtml = marked(markdownContent);
+      markdownPreview.innerHTML = convertedHtml;
+  
+      // Update word count
+      const words = markdownContent.match(/\S+/g);
+      wordCount.textContent = words ? words.length : 0;
+    }
+  
+    // Function to download Markdown
+    function downloadMarkdown() {
+      const markdownContent = markdownInput.value;
+      const blob = new Blob([markdownContent], { type: 'text/markdown' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'markdown_content.md';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    }
+  
+    // Function to download Word document
+    function downloadWord() {
+      const markdownContent = markdownInput.value;
+      const convertedHtml = marked(markdownContent);
+      const blob = htmlDocx.asBlob(convertedHtml);
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'markdown_content.docx';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    }
+  
+    // Function to clear editor
+    function clearEditor() {
+      markdownInput.value = '';
+      markdownPreview.innerHTML = '';
+      wordCount.textContent = '0';
+    }
+    function copyMarkdown() {
+        const markdownPreviewContent = markdownPreview.innerHTML;
+        const plainTextContent = markdownToPlainText(markdownPreviewContent);
+      
+        if (plainTextContent) {
+            navigator.clipboard.writeText(plainTextContent)
+                .then(() => {
+                    console.log('Markdown preview copied to clipboard as plain text');
+                })
+                .catch(err => {
+                    console.error('Failed to copy markdown preview as plain text: ', err);
+                });
+        } else {
+            console.log('No content in markdown preview to copy');
+        }
+    }
+    
+    function markdownToPlainText(markdown) {
+        // Replace heading syntax with plain text equivalent
+        const headingRegex = /#+\s(.+?)\n/g;
+        const plainText = markdown.replace(headingRegex, (match, p1) => {
+            const level = match.match(/#+/)[0].length;
+            const headingText = p1.trim();
+            return `${'='.repeat(level)} ${headingText}\n`;
+        });
+    
+        // Replace other Markdown formatting syntax if needed
+    
+        return plainText;
+    }
+    
+  
+    // Event listeners
+    markdownInput.addEventListener('input', updatePreview);
+    downloadMarkdownButton.addEventListener('click', downloadMarkdown);
+    downloadWordButton.addEventListener('click', downloadWord);
+    clearButton.addEventListener('click', clearEditor);
+    copyButton.addEventListener('click', copyMarkdown);
+  </script>
   
 </body>
 </html>
